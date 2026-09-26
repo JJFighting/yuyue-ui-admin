@@ -388,6 +388,12 @@ export function useNodeForm(nodeType: BpmNodeTypeEnum) {
     if (configForm.value?.candidateStrategy === CandidateStrategy.EXPRESSION) {
       showText = `流程表达式：${configForm.value.expression}`;
     }
+    // 场地管理员
+    if (
+      configForm.value?.candidateStrategy === CandidateStrategy.VENUE_MANAGER
+    ) {
+      showText = `场地管理员`;
+    }
     return showText;
   }
 
