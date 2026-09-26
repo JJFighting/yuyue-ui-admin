@@ -337,6 +337,10 @@ export enum CandidateStrategy {
    * 流程表达式
    */
   EXPRESSION = 60,
+  /**
+   * 场地管理员
+   */
+  VENUE_MANAGER = 70,
 }
 
 export enum BpmHttpRequestParamTypeEnum {
@@ -680,6 +684,7 @@ export const CANDIDATE_STRATEGY: DictDataType[] = [
     value: CandidateStrategy.FORM_DEPT_LEADER as any,
   },
   { label: '流程表达式', value: CandidateStrategy.EXPRESSION as any },
+  { label: '场地管理员', value: CandidateStrategy.VENUE_MANAGER as any },
 ];
 // 审批节点 的审批类型
 export const APPROVE_TYPE: DictDataType[] = [
