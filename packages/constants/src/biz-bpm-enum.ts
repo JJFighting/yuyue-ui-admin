@@ -60,6 +60,10 @@ export enum BpmCandidateStrategyEnum {
    * 流程表达式
    */
   EXPRESSION = 60,
+  /**
+   * 场地管理员
+   */
+  VENUE_MANAGER = 70,
 }
 
 /**
