@@ -37,6 +37,8 @@ import { unbookableReasonText, useGridColumns, useGridFormSchema } from './data'
 import CreateForm from './modules/create-form.vue';
 import Detail from './modules/detail.vue';
 
+defineOptions({ name: 'YuyueReservation' });
+
 const { StatusEnum } = YuyueReservationApi;
 
 const [FormModal, formModalApi] = useVbenModal({

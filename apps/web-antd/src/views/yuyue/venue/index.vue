@@ -14,6 +14,8 @@ import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 import RuleForm from './modules/rule-form.vue';
 
+defineOptions({ name: 'YuyueVenue' });
+
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
