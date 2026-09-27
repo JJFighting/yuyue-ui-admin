@@ -136,7 +136,20 @@ async function loadFormPreview(venueId: number) {
     dynamicForm.value = {};
     formCreateApi.value = undefined;
     if (preview?.formConf && preview.formFields?.length) {
-      setConfAndFields2(dynamicForm.value, preview.formConf, preview.formFields);
+      try {
+        setConfAndFields2(
+          dynamicForm.value,
+          preview.formConf,
+          preview.formFields,
+        );
+      } catch {
+        // 历史数据 conf 可能是非法 JSON：退回默认布局，保证字段仍可渲染
+        setConfAndFields2(
+          dynamicForm.value,
+          '{"form":{"labelWidth":100},"submitBtn":false}',
+          preview.formFields,
+        );
+      }
       // 在配置中禁用 form-create 自带的提交和重置按钮
       dynamicForm.value.option = {
         ...dynamicForm.value.option,
