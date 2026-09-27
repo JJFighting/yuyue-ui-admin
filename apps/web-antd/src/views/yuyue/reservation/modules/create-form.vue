@@ -200,6 +200,8 @@ watch(
       formCreateApi.value = undefined;
       return;
     }
+    // 作废 A 场地的在途场次请求，防止慢网下在场地 B 闪现（后端有归属校验兜底）
+    sessionReqId++;
     // 换场地后原日期可能超出新的可约范围，统一重选
     formState.reserveDate = null;
     loadRule(venueId);
