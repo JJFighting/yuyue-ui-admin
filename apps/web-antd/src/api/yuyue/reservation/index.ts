@@ -62,7 +62,8 @@ export namespace YuyueReservationApi {
     action: string;
     fromStatus?: number;
     toStatus?: number;
-    operator?: string;
+    /** 操作人用户编号（后端 Long 经 Jackson 序列化为 JSON number） */
+    operator?: number;
     reason?: string;
     createTime: string;
   }
