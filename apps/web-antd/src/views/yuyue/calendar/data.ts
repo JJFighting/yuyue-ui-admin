@@ -205,7 +205,11 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       title: '是否开放',
       minWidth: 90,
       slots: {
+        // 每周记录 UI 恒开放（表单 type=1 提交 open=true），"每周关闭"仅可能来自外部数据，展示静态文案避免误导
         default: ({ row }) => {
+          if (row.type === 1) {
+            return h(Tag, { color: 'green' }, () => '每周开放');
+          }
           return h(Switch, {
             checked: row.open,
             checkedChildren: '开',

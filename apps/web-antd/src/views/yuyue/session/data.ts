@@ -75,7 +75,7 @@ export function useFormSchema(): VbenFormSchema[] {
             .any()
             .refine(
               (value) => value !== null && value !== undefined && value !== '',
-              '请选择结束时间',
+              '请选择场次结束时间',
             )
             .refine(
               (value) =>
@@ -85,7 +85,7 @@ export function useFormSchema(): VbenFormSchema[] {
                 !values.startTime ||
                 // HH:mm:ss 字符串可直接按字典序比较
                 value > values.startTime,
-              '结束时间必须晚于开始时间',
+              '场次结束时间必须晚于开始时间',
             ),
       },
     },
