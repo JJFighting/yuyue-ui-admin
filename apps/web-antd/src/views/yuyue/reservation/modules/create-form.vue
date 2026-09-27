@@ -73,9 +73,8 @@ const sessionsLoading = ref(false);
 /** 最多提前预约天数（规则缺失 = 不限） */
 const maxAdvanceDays = ref<null | number>(null);
 
-/** 动态表单：none=未加载 form=渲染表单 free=免审核提示 */
-const formPreviewState = ref<'form' | 'free' | 'none'>('none');
-const formPreviewLoading = ref(false);
+/** 动态表单：none=未加载 loading=加载中 form=渲染表单 free=免审核提示 */
+const formPreviewState = ref<'form' | 'free' | 'loading' | 'none'>('none');
 const dynamicForm = ref<any>({});
 const formCreateApi = ref<any>();
 
@@ -128,8 +127,7 @@ async function loadRule(venueId: number) {
 let previewReqId = 0;
 async function loadFormPreview(venueId: number) {
   const reqId = ++previewReqId;
-  formPreviewLoading.value = true;
-  formPreviewState.value = 'none';
+  formPreviewState.value = 'loading';
   try {
     const preview = await getFormPreview(venueId);
     if (reqId !== previewReqId) {
@@ -139,6 +137,12 @@ async function loadFormPreview(venueId: number) {
     formCreateApi.value = undefined;
     if (preview?.formConf && preview.formFields?.length) {
       setConfAndFields2(dynamicForm.value, preview.formConf, preview.formFields);
+      // 在配置中禁用 form-create 自带的提交和重置按钮
+      dynamicForm.value.option = {
+        ...dynamicForm.value.option,
+        resetBtn: false,
+        submitBtn: false,
+      };
       formPreviewState.value =
         dynamicForm.value.rule?.length > 0 ? 'form' : 'free';
     } else {
@@ -146,7 +150,8 @@ async function loadFormPreview(venueId: number) {
     }
   } finally {
     if (reqId === previewReqId) {
-      formPreviewLoading.value = false;
+      formPreviewState.value =
+        formPreviewState.value === 'loading' ? 'none' : formPreviewState.value;
     }
   }
 }
@@ -183,6 +188,9 @@ watch(
   () => formState.venueId,
   (venueId) => {
     if (!venueId) {
+      // 作废在途请求，防止慢网下回填已清空场地的数据
+      previewReqId++;
+      sessionReqId++;
       maxAdvanceDays.value = null;
       sessions.value = [];
       formState.sessionId = undefined;
@@ -209,6 +217,11 @@ watch(
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
+    // 扩展表单加载中不允许提交，防止绕过动态表单校验
+    if (formPreviewState.value === 'loading') {
+      message.warning('扩展表单加载中，请稍候');
+      return;
+    }
     try {
       await formRef.value?.validate();
     } catch {
@@ -383,7 +396,7 @@ const [Modal, modalApi] = useVbenModal({
 
       <template v-if="formPreviewState !== 'none'">
         <div class="mb-2 mt-4 font-medium">扩展信息</div>
-        <div v-if="formPreviewLoading" class="py-6 text-center">
+        <div v-if="formPreviewState === 'loading'" class="py-6 text-center">
           <Spin />
         </div>
         <FormCreate

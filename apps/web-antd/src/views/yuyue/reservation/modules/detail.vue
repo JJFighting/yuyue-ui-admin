@@ -59,13 +59,13 @@ const ACTION_TIMELINE_COLOR: Record<string, string> = {
   SUBMIT: 'blue',
 };
 
-/** 日志的状态流转文案（from -> to） */
+/** 日志的状态流转文案（from -> to；from 为空（undefined/JSON null，如首条 SUBMIT）时只显示 toStatus） */
 function logTransition(log: YuyueReservationApi.LogItem) {
-  if (log.toStatus === undefined) {
+  if (log.toStatus === undefined || log.toStatus === null) {
     return '';
   }
   const from = log.fromStatus;
-  return from === undefined
+  return from == null
     ? statusText(log.toStatus)
     : `${statusText(from)} → ${statusText(log.toStatus)}`;
 }

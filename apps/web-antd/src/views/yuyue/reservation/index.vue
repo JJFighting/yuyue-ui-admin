@@ -253,7 +253,7 @@ async function confirmReschedule() {
         <TableAction
           :actions="[
             {
-              label: '新建预约',
+              label: $t('ui.actionTitle.create', ['预约']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['yuyue:reservation:create'],
@@ -322,7 +322,7 @@ async function confirmReschedule() {
         <FormItem name="force">
           <div class="flex items-center gap-2">
             <Switch v-model:checked="cancelState.force" />
-            <span>跳过取消截止校验（管理员）</span>
+            <span>跳过取消截止校验</span>
           </div>
         </FormItem>
       </Form>
