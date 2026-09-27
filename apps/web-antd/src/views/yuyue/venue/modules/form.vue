@@ -51,7 +51,7 @@ const [Modal, modalApi] = useVbenModal({
     const data: YuyueVenueApi.Venue = {
       ...values,
       managerUserIds: formatManagerUserIds(values.managerUserIds),
-      auditProcessKey: values.auditProcessKey || null,
+      auditProcessKey: (values.auditProcessKey ?? '').trim() || null,
     };
     try {
       await (formData.value?.id ? updateVenue(data) : createVenue(data));

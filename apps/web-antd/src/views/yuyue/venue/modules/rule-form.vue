@@ -38,12 +38,17 @@ const [Modal, modalApi] = useVbenModal({
     if (!valid) {
       return;
     }
+    const venueId = venue.value?.id;
+    if (!venueId) {
+      message.warning('场地编号缺失，请重新打开规则配置');
+      return;
+    }
     modalApi.lock();
     // 提交：数字留空统一归一为 null（=不限/不允许/不提醒），开关归一为 boolean
     const values = (await formApi.getValues()) as YuyueRuleApi.Rule;
     try {
       await saveRule({
-        venueId: venue.value?.id!,
+        venueId,
         maxAdvanceDays: values.maxAdvanceDays ?? null,
         reserveDeadlineHours: values.reserveDeadlineHours ?? null,
         cancelDeadlineHours: values.cancelDeadlineHours ?? null,
