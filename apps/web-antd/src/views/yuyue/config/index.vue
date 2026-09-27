@@ -9,7 +9,7 @@ import { useAccess } from '@vben/access';
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { formatDateTime } from '@vben/utils';
 
-import { Button, message, Select, Table } from 'ant-design-vue';
+import { Button, message, Select, Table, Tag } from 'ant-design-vue';
 
 import { getVersionList, rollbackVersion } from '#/api/yuyue/config';
 import { getSimpleVenueList } from '#/api/yuyue/venue';
@@ -54,6 +54,12 @@ const keyPlaceholder = computed(() => {
     ? '暂无场地绑定审核流程'
     : '请选择流程 key';
 });
+
+/**
+ * 当前生效版本：后端 /list 按版本号降序返回（见 YuyueProcessVersionController
+ * "版本列表（按版本号降序）"），首行即最新部署版本，也是新预约走的版本。
+ */
+const currentVersionId = computed(() => versions.value[0]?.processDefinitionId);
 
 const columns: TableColumnsType = [
   { dataIndex: 'version', title: '版本号', key: 'version', width: 120 },
@@ -124,7 +130,9 @@ function handleDiff() {
 async function handleRollback(row: YuyueConfigApi.ProcessVersion) {
   try {
     await confirm(
-      `确认回退到 v${row.version} 吗？将以 revert 方式生成新版本（内容=旧版），历史版本保留。`,
+      `确认回退到 v${row.version} 吗？将以 revert 方式生成新版本（内容=旧版），历史版本保留。` +
+        '回退将立即重新部署并生效于新预约，当前设计器草稿会被覆盖为该版本内容。',
+      { icon: 'warning' },
     );
   } catch {
     return; // 取消回退
@@ -207,7 +215,14 @@ onMounted(loadProcessKeys);
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'version'">
-            v{{ record.version }}
+            <span class="mr-2">v{{ record.version }}</span>
+            <!-- 首行=版本号降序的最新部署版，即当前生效版本 -->
+            <Tag
+              v-if="record.processDefinitionId === currentVersionId"
+              color="blue"
+            >
+              当前版本
+            </Tag>
           </template>
           <template v-else-if="column.key === 'deploymentTime'">
             {{ formatDateTime(record.deploymentTime) }}
@@ -218,6 +233,7 @@ onMounted(loadProcessKeys);
               type="link"
               size="small"
               danger
+              :disabled="record.processDefinitionId === currentVersionId"
               @click="
                 handleRollback(record as YuyueConfigApi.ProcessVersion)
               "

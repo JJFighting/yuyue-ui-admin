@@ -31,9 +31,12 @@ const columns: TableColumnsType = [
   { dataIndex: 'detail', title: '明细', key: 'detail' },
 ];
 
-/** 变更类型 -> Tag 颜色/文案（未知类型回退 undefined） */
-function changeTag(change: string) {
-  return CHANGE_TAG[change as YuyueConfigApi.FieldDiff['change']];
+/** 变更类型 -> Tag 颜色/文案（未知类型兜底：显示原码 + 默认灰 Tag） */
+function changeTag(change: string): { color?: string; text: string } {
+  const known = CHANGE_TAG[change as YuyueConfigApi.FieldDiff['change']];
+  return known
+    ? { color: known.color, text: `${change}（${known.text}）` }
+    : { text: change };
 }
 
 /** JSON 美化（解析失败回退原文；空值给占位提示） */
@@ -94,8 +97,8 @@ const [Modal, modalApi] = useVbenModal({
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'change'">
-            <Tag :color="changeTag(record.change)?.color">
-              {{ record.change }}（{{ changeTag(record.change)?.text }}）
+            <Tag :color="changeTag(record.change).color">
+              {{ changeTag(record.change).text }}
             </Tag>
           </template>
         </template>

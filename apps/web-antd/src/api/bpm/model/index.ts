@@ -19,6 +19,8 @@ export namespace BpmModelApi {
     remark: string;
     createTime: string;
     bpmnXml: string;
+    /** Simple 设计器草稿（对象形态；仅 /get 详情返回，列表接口不含） */
+    simpleModel?: Record<string, unknown>;
     startUsers?: UserInfo[];
   }
 

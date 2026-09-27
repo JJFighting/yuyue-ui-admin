@@ -6,19 +6,11 @@ import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { message, Select, Tag } from 'ant-design-vue';
+import { Alert, message, Select, Tag } from 'ant-design-vue';
 
 import { getForm } from '#/api/bpm/form';
 import { getModel, getModelList } from '#/api/bpm/model';
 import { checkForm } from '#/api/yuyue/config';
-
-/**
- * 模型详情（/bpm/model/get 响应）：后端 simpleModel 为 BpmSimpleModelNodeVO
- * 对象形态（列表接口不含该字段），checkForm 需要 JSON 串，提交前序列化。
- */
-type ModelWithDraft = BpmModelApi.Model & {
-  simpleModel?: null | object | string;
-};
 
 defineOptions({ name: 'YuyueConfigCheck' });
 
@@ -26,6 +18,8 @@ const modelOptions = ref<{ label: string; value: string }[]>([]);
 const models = ref<BpmModelApi.Model[]>([]);
 const modelsLoading = ref(false);
 const modelKey = ref<string>();
+/** 传入的流程 key 未匹配到流程模型时提示手动选择 */
+const keyMismatch = ref(false);
 
 const result = ref<YuyueConfigApi.FormCheckResult>();
 
@@ -46,6 +40,7 @@ const [Modal, modalApi] = useVbenModal({
       modelOptions.value = [];
       models.value = [];
       modelKey.value = undefined;
+      keyMismatch.value = false;
       result.value = undefined;
       return;
     }
@@ -55,7 +50,7 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
-/** 加载流程模型选项（预选传入的流程 key） */
+/** 加载流程模型选项（预选传入的流程 key；未匹配到时提示手动选择） */
 async function loadModels(processKey?: string) {
   modelsLoading.value = true;
   try {
@@ -64,22 +59,19 @@ async function loadModels(processKey?: string) {
       label: `${item.name}（${item.key}）`,
       value: item.key,
     }));
-    modelKey.value =
-      processKey && models.value.some((item) => item.key === processKey)
-        ? processKey
-        : undefined;
+    const matched = processKey
+      ? models.value.some((item) => item.key === processKey)
+      : false;
+    keyMismatch.value = !!processKey && !matched;
+    modelKey.value = matched ? processKey : undefined;
   } finally {
     modelsLoading.value = false;
   }
 }
 
-/** simpleModel 草稿序列化（兼容对象/字符串两种形态；空草稿返回 undefined） */
-function serializeSimpleModel(model: ModelWithDraft) {
-  const draft = model.simpleModel;
-  if (!draft) {
-    return undefined;
-  }
-  return typeof draft === 'string' ? draft : JSON.stringify(draft);
+/** simpleModel 草稿序列化（对象形态 → JSON 串；空草稿返回 undefined，仅检查表单） */
+function serializeSimpleModel(model: BpmModelApi.Model) {
+  return model.simpleModel ? JSON.stringify(model.simpleModel) : undefined;
 }
 
 /** 拉取模型/表单草稿并执行发布检查 */
@@ -98,7 +90,7 @@ async function runCheck() {
       return;
     }
     // 2. 模型草稿（simpleModel）+ 关联表单草稿（fields）
-    const model = (await getModel(String(matched.id))) as ModelWithDraft;
+    const model = await getModel(String(matched.id));
     let formFields: string[] | undefined;
     if (model.formId) {
       formFields = (await getForm(model.formId)).fields;
@@ -135,7 +127,16 @@ async function runCheck() {
     </div>
     <div class="mb-4 text-xs text-gray-400">
       使用 BPM 设计器中的草稿（流程模型 + 关联表单）执行发布前检查：必采字段、字段兼容、流程完整性
+      <br />
+      请先在设计器保存草稿（未保存的修改不参与检查）
     </div>
+    <Alert
+      v-if="keyMismatch"
+      class="mb-4"
+      type="warning"
+      show-icon
+      message="当前流程 key 未匹配到流程模型，请手动选择"
+    />
 
     <template v-if="result">
       <div class="mb-3 flex items-center gap-2">
