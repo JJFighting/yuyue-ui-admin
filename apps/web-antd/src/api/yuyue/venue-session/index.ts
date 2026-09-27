@@ -70,7 +70,12 @@ export function getSimpleSessionList(venueId: number) {
   );
 }
 
-/** 查询指定日期的可预约时段（含余量与不可约原因） */
+/**
+ * 查询指定日期的可预约时段（含余量与不可约原因）
+ *
+ * @param venueId 场地编号
+ * @param date 日期，格式 YYYY-MM-DD
+ */
 export function getAvailableSessionList(venueId: number, date: string) {
   return requestClient.get<YuyueSessionApi.SessionAvailable[]>(
     `/yuyue/venue-session/available?venueId=${venueId}&date=${date}`,

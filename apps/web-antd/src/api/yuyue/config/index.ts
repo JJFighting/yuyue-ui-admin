@@ -18,8 +18,9 @@ export namespace YuyueConfigApi {
   export interface ProcessVersion {
     processDefinitionId: string;
     version: number;
-    deploymentTime: string;
-    formFields: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    deploymentTime: number;
+    formFields: string[];
     formConf: string;
     simpleModel: string;
   }

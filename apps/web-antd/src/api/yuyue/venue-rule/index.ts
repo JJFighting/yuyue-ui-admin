@@ -22,7 +22,8 @@ export namespace YuyueRuleApi {
     configId: number;
     beforeContent: string;
     afterContent: string;
-    createTime: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    createTime: number;
   }
 }
 

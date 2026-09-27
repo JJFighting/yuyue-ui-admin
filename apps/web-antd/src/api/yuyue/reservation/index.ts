@@ -1,5 +1,7 @@
 import type { PageParam, PageResult } from '@vben/request';
 
+import type { YuyueConfigApi } from '#/api/yuyue/config';
+
 import { requestClient } from '#/api/request';
 
 export namespace YuyueReservationApi {
@@ -31,6 +33,7 @@ export namespace YuyueReservationApi {
     venueName: string;
     sessionId: number;
     sessionName: string;
+    /** 预约日期，格式 YYYY-MM-DD */
     reserveDate: string;
     headcount: number;
     visitorName: string;
@@ -41,13 +44,15 @@ export namespace YuyueReservationApi {
     statusName: string;
     purpose?: string;
     cancelReason?: string;
-    createTime: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    createTime: number;
   }
 
   /** 预约单创建参数 */
   export interface ReservationCreateParam {
     venueId: number;
     sessionId: number;
+    /** 预约日期，格式 YYYY-MM-DD */
     reserveDate: string;
     headcount: number;
     visitorName: string;
@@ -65,7 +70,8 @@ export namespace YuyueReservationApi {
     /** 操作人用户编号（后端 Long 经 Jackson 序列化为 JSON number） */
     operator?: number;
     reason?: string;
-    createTime: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    createTime: number;
   }
 
   /** 预约单详情 */
@@ -79,12 +85,6 @@ export namespace YuyueReservationApi {
     sessionStartTime?: string;
     sessionEndTime?: string;
     logs?: LogItem[];
-  }
-
-  /** 表单预览配置 */
-  export interface FormPreview {
-    formFields: string[];
-    formConf: string;
   }
 }
 
@@ -130,9 +130,13 @@ export function getReservationDetail(id: number) {
   );
 }
 
-/** 查询场地动态表单预览配置（未配置表单时返回 null） */
+/**
+ * 查询场地动态表单预览配置（未配置表单时返回 null）
+ *
+ * 复用 {@link YuyueConfigApi.ProcessVersion} 结构；该接口后端 simpleModel 恒为 null
+ */
 export function getFormPreview(venueId: number) {
-  return requestClient.get<null | YuyueReservationApi.FormPreview>(
+  return requestClient.get<null | YuyueConfigApi.ProcessVersion>(
     `/yuyue/reservation/form-preview?venueId=${venueId}`,
   );
 }

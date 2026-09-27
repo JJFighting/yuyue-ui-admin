@@ -12,10 +12,11 @@ export namespace YuyueVenueApi {
     capacity: number;
     description?: string;
     /** 逗号分隔的用户编号；清空时传 null（后端 @Pattern 拒绝空串） */
-    managerUserIds?: string | null;
-    auditProcessKey?: string | null;
+    managerUserIds?: null | string;
+    auditProcessKey?: null | string;
     status: number;
-    createTime?: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    createTime?: number;
   }
 }
 

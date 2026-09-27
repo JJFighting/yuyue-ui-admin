@@ -9,11 +9,14 @@ export namespace YuyueCalendarApi {
     venueId: number;
     /** 1 每周规则 2 指定日期 */
     type: number;
+    /** 每周规则（1=周一 … 7=周日）时使用；指定日期时为 null */
     weekday?: null | number;
+    /** 指定日期（YYYY-MM-DD）；每周规则时为 null */
     calDate?: null | string;
     open?: boolean;
     remark?: string;
-    createTime?: string;
+    /** epoch 毫秒（后端 TimestampLocalDateTimeSerializer） */
+    createTime?: number;
   }
 }
 
